@@ -21,25 +21,20 @@ jobs:
     - name: System-Abhängigkeiten installieren
       run: |
         sudo apt-get update
-        # Installiert Kern-Pakete einzeln, um Exit-Code 100 zu verhindern
-        sudo apt-get install -y build-essential git python3-dev zip unzip lld cmake || true
+        # Installiert alle benötigten Linux-Werkzeuge
+        sudo apt-get install -y build-essential git python3-dev zip unzip lld cmake libstdc++6 aidl || true
         sudo apt-get install -y libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev || true
         sudo apt-get install -y libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev || true
-        sudo apt-get install -y Openjdk-17-jdk autoconf libtool pkg-config || true
+        sudo apt-get install -y openjdk-17-jdk autoconf libtool pkg-config || true
         
-        # Python-Werkzeuge installieren
-        pip install --upgrade pip
-        pip install Cython==0.29.33 buildozer virtualenv
+        # Python-Pakete auf den neuesten Stand bringen
+        pip install --upgrade pip setuptools wheel
+        pip install --upgrade cython buildozer virtualenv
 
     - name: APK mit Buildozer bauen
       run: |
+        # Android-Lizenzen im Hintergrund vorbereiten
+        mkdir -p ~/.android && touch ~/.android/repositories.cfg
         buildozer -v android debug
       env:
         ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
-
-    - name: APK Datei speichern
-      uses: actions/upload-artifact@v4
-      with:
-        name: Minecraft-Quest-APK
-        path: ./bin/*.apk
-
